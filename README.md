@@ -48,8 +48,7 @@ CiviqAI eliminates every friction point:
 ## CiviqAI public complaint portal — citizen submission form
 <img width="517" height="420" alt="ui-1" src="https://github.com/user-attachments/assets/2197b30e-28e8-4aaf-b2c8-becc70b536dc" />
 <img width="556" height="417" alt="Screenshot 2026-02-23 151248" src="https://github.com/user-attachments/assets/b9c21f0e-bd84-4582-b563-1fa0010e80ee" />
-<img width="1144" height="838" alt="Screenshot 2026-02-23 151323" src="https://github.com/user-attachments/assets/8faa4ce8-03ce-4044-9043-6501cd31edfb" />
-<img width="1148" height="844" alt="Screenshot 2026-02-23 151417" src="https://github.com/user-attachments/assets/39434124-c79a-4946-b8f4-9d6559d9a7b8" />
+<img width="572" height="419" alt="Screenshot 2026-02-23 151326" src="https://github.com/user-attachments/assets/ae00d10e-0f68-48de-a9dd-d8fd8ddeab63" />
 
 ---
 ---
