@@ -1,0 +1,187 @@
+import googlemaps
+from core.config import settings
+from core.database import SessionLocal, ComplaintDB
+from core.redis_client import _MUNICIPALITIES
+from datetime import datetime, timedelta
+import math
+import logging
+
+logger = logging.getLogger(__name__)
+gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+
+
+# ── helper: match nearest seeded municipality by coords ──
+def _match_municipality(lat: float, lng: float,
+                        locality: str = "", address: str = "") -> tuple[str, float]:
+    """Return (municipality_key, distance) for the closest seeded municipality."""
+    best_key, best_dist = "unknown", float("inf")
+    for key, muni in _MUNICIPALITIES.items():
+        d = math.sqrt((lat - muni["lat"]) ** 2 + (lng - muni["lng"]) ** 2)
+        if d < best_dist:
+            best_dist = d
+            best_key = key
+
+    # ~0.15 deg ≈ 15 km — if farther, try text match first
+    if best_dist > 0.15:
+        low = (locality or address).lower()
+        for key in _MUNICIPALITIES:
+            if key in low:
+                return key, best_dist
+
+    return best_key, best_dist
+
+
+def geocode_address(address: str) -> dict:
+    """Convert address string to lat/lng coordinates.
+    Falls back to seeded municipality coords if Maps API is unavailable."""
+    logger.info("  → LocationAgent: geocoding address '%s'", address)
+    try:
+        result = gmaps.geocode(f"{address}, Chennai, Tamil Nadu")
+        if not result:
+            raise ValueError("empty result")
+        loc = result[0]["geometry"]["location"]
+        logger.info("     ✓ Geocoded via Maps API: (%s, %s)", loc["lat"], loc["lng"])
+        return {"lat": loc["lat"], "lng": loc["lng"],
+                "formatted": result[0]["formatted_address"]}
+    except Exception as e:
+        logger.warning("     ⚠ Maps geocode failed (%s), using municipality fallback", str(e)[:80])
+        # Try to match address text to a seeded municipality
+        low = address.lower()
+        for key, muni in _MUNICIPALITIES.items():
+            if key in low:
+                logger.info("     ✓ Fallback matched municipality '%s' (%s, %s)",
+                            key, muni["lat"], muni["lng"])
+                return {"lat": muni["lat"], "lng": muni["lng"],
+                        "formatted": f"{address} (near {muni['name']})"}
+        # Default to Chennai center
+        logger.info("     ✓ Fallback: using Chennai center coords")
+        return {"lat": 13.0827, "lng": 80.2707,
+                "formatted": f"{address}, Chennai (approx)"}
+
+
+def reverse_geocode(lat: float, lng: float) -> dict:
+    """Get ward, zone, area, and municipality from lat/lng.
+    Uses Maps API when available, falls back to seeded municipality matching."""
+    logger.info("  → LocationAgent: reverse geocoding (%s, %s)", lat, lng)
+
+    ward, zone, area = "Unknown Ward", "Unknown Zone", "Unknown Area"
+    locality = ""
+    formatted_address = ""
+
+    # ── Try Google Maps API first ──
+    try:
+        result = gmaps.reverse_geocode((lat, lng))
+        if result:
+            formatted_address = result[0].get("formatted_address", "")
+            for comp in result[0].get("address_components", []):
+                types = comp.get("types", [])
+                if "sublocality_level_2" in types:
+                    ward = comp["long_name"]
+                if "sublocality_level_1" in types:
+                    zone = comp["long_name"]
+                if "sublocality" in types:
+                    area = comp["long_name"]
+                if "locality" in types:
+                    locality = comp["long_name"]
+            logger.info("     ✓ Maps API returned: %s", formatted_address[:80])
+    except Exception as e:
+        logger.warning("     ⚠ Maps reverse-geocode failed (%s), using coord-only fallback",
+                        str(e)[:80])
+
+    # ── Always match to seeded municipality by coordinate proximity ──
+    municipality, best_dist = _match_municipality(lat, lng, locality, formatted_address)
+
+    # If Maps API failed, build a synthetic address from municipality data
+    if not formatted_address and municipality != "unknown":
+        muni_data = _MUNICIPALITIES.get(municipality, {})
+        formatted_address = f"Near {muni_data.get('name', municipality)}, Chennai"
+        area = muni_data.get("name", area)
+
+    logger.info("     ✓ Result: Ward=%s, Zone=%s, Area=%s, Municipality=%s (dist=%.4f)",
+                ward, zone, area, municipality, best_dist)
+    return {
+        "ward": ward,
+        "zone": zone,
+        "area": area,
+        "municipality": municipality,
+        "locality": locality or area,
+        "formatted_address": formatted_address,
+    }
+
+def find_nearby_complaints(lat: float, lng: float,
+                            radius_m: int, hours: int,
+                            issue_type: str) -> list:
+    """Find complaints of same type near this location within time window."""
+    db = SessionLocal()
+    since = datetime.utcnow() - timedelta(hours=hours)
+    complaints = db.query(ComplaintDB).filter(
+        ComplaintDB.issue_type == issue_type,
+        ComplaintDB.submitted_at >= since
+    ).all()
+    db.close()
+
+    nearby = []
+    for c in complaints:
+        if c.lat and c.lng:
+            try:
+                dist = gmaps.distance_matrix(
+                    origins=[(lat, lng)],
+                    destinations=[(c.lat, c.lng)],
+                    mode="walking"
+                )
+                meters = dist["rows"][0]["elements"][0]["distance"]["value"]
+            except Exception:
+                # Fallback: approximate distance from coordinates
+                meters = int(math.sqrt((lat - c.lat)**2 + (lng - c.lng)**2) * 111_000)
+            if meters <= radius_m:
+                nearby.append({
+                    "complaint_id": c.id,
+                    "lat": c.lat, "lng": c.lng,
+                    "severity": c.severity,
+                    "distance_m": meters
+                })
+    return nearby
+
+def get_route_to_site(depot_address: str,
+                       site_lat: float, site_lng: float) -> dict:
+    """Get driving route from municipal depot to complaint site."""
+    try:
+        result = gmaps.directions(
+            origin=depot_address,
+            destination=f"{site_lat},{site_lng}",
+            mode="driving",
+            departure_time="now"
+        )
+        if not result:
+            raise ValueError("no route")
+        leg = result[0]["legs"][0]
+        return {
+            "duration": leg["duration"]["text"],
+            "distance": leg["distance"]["text"],
+            "start_address": leg["start_address"],
+            "end_address": leg["end_address"],
+            "maps_url": f"https://maps.google.com/?q={site_lat},{site_lng}"
+        }
+    except Exception as e:
+        logger.warning("     ⚠ Directions API failed (%s), returning fallback", str(e)[:60])
+        return {
+            "duration": "N/A",
+            "distance": "N/A",
+            "start_address": depot_address,
+            "end_address": f"{site_lat},{site_lng}",
+            "maps_url": f"https://maps.google.com/?q={site_lat},{site_lng}"
+        }
+
+def get_streetview_url(lat: float, lng: float) -> str:
+    """Generate Google Street View URL for complaint location."""
+    return (f"https://maps.googleapis.com/maps/api/streetview"
+            f"?size=400x300&location={lat},{lng}"
+            f"&key={settings.GOOGLE_MAPS_API_KEY}")
+
+def get_affected_households(lat: float, lng: float, radius_m: int) -> dict:
+    """Estimate number of affected households using Places API."""
+    places = gmaps.places_nearby(
+        location=(lat, lng), radius=radius_m, type="premise"
+    )
+    count = len(places.get("results", []))
+    return {"estimated_households": count * 3, "buildings_found": count}

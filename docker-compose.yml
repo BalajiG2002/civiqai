@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  # ─── Backend API ───
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # ─── Redis (municipal directory + caching) ───
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  # ─── Public Citizen Portal ───
+  public:
+    build:
+      context: ./frontend/public
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ─── Officer Dashboard ───
+  dashboard:
+    build:
+      context: ./frontend/dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  redis_data:

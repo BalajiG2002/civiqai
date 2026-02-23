@@ -1,0 +1,23 @@
+[project]
+name = "civiqai"
+version = "0.1.0"
+description = "AI-powered civic complaint management system for Chennai"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-adk>=1.0.0",
+    "google-genai>=1.0.0",
+    "google-api-python-client>=2.140.0",
+    "google-auth>=2.35.0",
+    "google-auth-oauthlib>=1.2.0",
+    "googlemaps>=4.10.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "python-multipart>=0.0.12",
+    "sqlalchemy>=2.0.36",
+    "redis>=5.0.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "google-genai>=1.64.0",
+]

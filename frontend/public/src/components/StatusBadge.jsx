@@ -1,0 +1,1 @@
+// StatusBadge.jsx — 🔴🟡🟢 badge component

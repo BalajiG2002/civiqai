@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Leaflet required CSS ─────────────────────────────────── */
+@import 'leaflet/dist/leaflet.css';
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', Roboto, sans-serif;
+  background: #0a0f1a;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --bg-primary:   #0a0f1a;
+  --bg-card:      #111827;
+  --bg-card-alt:  #1a2236;
+  --border:       #1e293b;
+  --border-light: #2d3a50;
+  --text-primary: #f1f5f9;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-glow:  rgba(59, 130, 246, 0.15);
+  --success:      #10b981;
+  --warning:      #f59e0b;
+  --danger:       #ef4444;
+  --purple:       #8b5cf6;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Leaflet dark overrides */
+.leaflet-container {
+  background: #0a0f1a !important;
+}
+.leaflet-tile-pane {
+  filter: brightness(0.7) contrast(1.2) saturate(0.3) hue-rotate(180deg) invert(1);
+}
+.leaflet-control-zoom a {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+.leaflet-control-attribution { display: none !important; }
+
+/* Pulse animation for live indicator */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+.live-dot {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* Glow cards */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card.blue::before   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-card.red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
+.stat-card.green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
+.stat-card.orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+/* Feed item animation */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.feed-item {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Chat message animation */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-msg {
+  animation: fade-up 0.25s ease-out;
+}
+
+/* ── Mobile utilities ─────────────────────────────────────── */
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Disable tap highlight on mobile */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Safe area for bottom nav on notched phones */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent overscroll bounce on mobile */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* ── Light mode overrides ─────────────────────────────────── */
+/* When <html class="light">, override dark defaults */
+
+html.light body {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Cards + panels */
+html.light .bg-\[\#111827\] { background: #ffffff !important; }
+html.light .bg-\[\#0d1321\] { background: #f1f5f9 !important; }
+html.light .bg-\[\#0a0f1a\] { background: #f8fafc !important; }
+html.light .bg-\[\#1a2236\] { background: #e2e8f0 !important; }
+
+/* Borders */
+html.light .border-\[\#1e293b\] { border-color: #e2e8f0 !important; }
+html.light .border-\[\#2d3a50\] { border-color: #cbd5e1 !important; }
+html.light .border-\[\#334155\] { border-color: #cbd5e1 !important; }
+
+/* Text overrides for light mode */
+html.light .text-white { color: #0f172a !important; }
+/* Keep white text on dark backgrounds (compound = same element, descendant = child) */
+html.light .bg-gradient-to-br.text-white,
+html.light .bg-gradient-to-br .text-white,
+html.light [class*="bg-gradient"].text-white,
+html.light [class*="bg-gradient"] .text-white,
+html.light .bg-red-500.text-white,
+html.light .bg-red-500 .text-white,
+html.light .bg-blue-600.text-white,
+html.light .bg-blue-600 .text-white,
+html.light .bg-emerald-500.text-white,
+html.light .bg-emerald-500 .text-white,
+html.light .bg-slate-900.text-white,
+html.light .bg-slate-900 .text-white {
+  color: #ffffff !important;
+}
+html.light .text-slate-200 { color: #334155 !important; }
+html.light .text-slate-300 { color: #475569 !important; }
+html.light .text-slate-400 { color: #64748b !important; }
+html.light .text-slate-500 { color: #94a3b8 !important; }
+html.light .text-slate-600 { color: #94a3b8 !important; }
+
+/* Keep colored text readable in light mode */
+html.light .text-blue-400,
+html.light .text-red-400,
+html.light .text-emerald-400,
+html.light .text-amber-400,
+html.light .text-purple-400,
+html.light .text-cyan-400 {
+  /* keep original colors — no filter needed on white bg */
+}
+
+/* Leaflet light mode — undo the dark filter */
+html.light .leaflet-container { background: #e2e8f0 !important; }
+html.light .leaflet-tile-pane {
+  filter: none !important;
+}
+html.light .leaflet-control-zoom a {
+  background: #ffffff !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Stat card glow in light mode */
+html.light .stat-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+html.light .stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* Bottom nav light mode */
+html.light .bg-\[\#0d1321\]\/95 { background: rgba(255,255,255,0.95) !important; }
+
+/* Hover/interactive states */
+html.light .hover\:bg-white\/5:hover { background: rgba(0,0,0,0.05) !important; }
+html.light .hover\:bg-white\/\[0\.03\]:hover { background: rgba(0,0,0,0.03) !important; }
+html.light .bg-white\/5 { background: rgba(0,0,0,0.04) !important; }
+html.light .hover\:text-slate-200:hover { color: #1e293b !important; }
+html.light .hover\:text-slate-300:hover { color: #334155 !important; }
+
+/* User-bubble in chat */
+html.light .bg-emerald-600\/20 { background: rgba(16,185,129,0.12) !important; }
+html.light .text-emerald-100 { color: #065f46 !important; }
+
+/* Select dropdown */
+html.light select { background-color: #ffffff; color: #334155; border-color: #e2e8f0; }
