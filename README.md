@@ -655,7 +655,7 @@ ngrok http 8080
 
 ---
 
-## 🏗️ Built With
+## 🏗️ Built With 
 
 <p>
   <img src="https://img.shields.io/badge/Google_ADK-4285F4?style=for-the-badge&logo=google&logoColor=white" />
@@ -674,13 +674,10 @@ ngrok http 8080
 
 ## 👥 Authors
 
-Built with ❤️ for smarter cities.
+Built by Balaji G with Kavin Sager and Raghuvaran D .
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
