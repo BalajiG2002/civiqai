@@ -44,6 +44,14 @@ CiviqAI eliminates every friction point:
 | No tracking | Real-time SSE dashboard + status updates |
 | Reactive | Predictive — detects failures before they happen |
 
+----
+## CiviqAI public complaint portal — citizen submission form
+<img width="517" height="420" alt="ui-1" src="https://github.com/user-attachments/assets/2197b30e-28e8-4aaf-b2c8-becc70b536dc" />
+<img width="556" height="417" alt="Screenshot 2026-02-23 151248" src="https://github.com/user-attachments/assets/b9c21f0e-bd84-4582-b563-1fa0010e80ee" />
+<img width="1144" height="838" alt="Screenshot 2026-02-23 151323" src="https://github.com/user-attachments/assets/8faa4ce8-03ce-4044-9043-6501cd31edfb" />
+<img width="1148" height="844" alt="Screenshot 2026-02-23 151417" src="https://github.com/user-attachments/assets/39434124-c79a-4946-b8f4-9d6559d9a7b8" />
+
+---
 ---
 
 ## 🧠 Architecture
@@ -149,6 +157,15 @@ CiviqAI eliminates every friction point:
 - Pre-failure alerts: pipe bursts, road collapses, power grid failures
 - Confidence scoring with estimated time windows
 - P1 escalation emails for high-confidence predictions
+
+---
+---
+## CiviqAI admin dashboard showing complaint tracking
+  
+<img width="1899" height="759" alt="Screenshot 2026-02-23 151557" src="https://github.com/user-attachments/assets/d5f964c5-8dce-4a1e-85b3-136a57772bb3" />
+<img width="1919" height="838" alt="Screenshot 2026-02-23 151711" src="https://github.com/user-attachments/assets/595b16d8-42e7-477e-bf03-c35b104fafea" />
+<img width="954" height="454" alt="Screenshot 2026-02-23 151627" src="https://github.com/user-attachments/assets/2d07cb90-2c50-40b2-bbbf-c74d0987b7d7" />
+<img width="1918" height="825" alt="Screenshot 2026-02-23 151749" src="https://github.com/user-attachments/assets/e3eaf80b-323b-40ae-aacb-5550a1942909" />
 
 ---
 
