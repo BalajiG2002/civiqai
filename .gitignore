@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+
+node_modules/
+.venv/
+uploads/
+logs/
+*.db
+sa_creds.json
+.env
