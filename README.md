@@ -49,6 +49,7 @@ CiviqAI eliminates every friction point:
 <img width="517" height="420" alt="ui-1" src="https://github.com/user-attachments/assets/2197b30e-28e8-4aaf-b2c8-becc70b536dc" />
 <img width="556" height="417" alt="Screenshot 2026-02-23 151248" src="https://github.com/user-attachments/assets/b9c21f0e-bd84-4582-b563-1fa0010e80ee" />
 <img width="572" height="419" alt="Screenshot 2026-02-23 151326" src="https://github.com/user-attachments/assets/ae00d10e-0f68-48de-a9dd-d8fd8ddeab63" />
+<img width="574" height="422" alt="Screenshot 2026-02-23 151432" src="https://github.com/user-attachments/assets/6333f6a0-ab06-4b2d-b566-8272f4224653" />
 
 ---
 ---
